@@ -1,4 +1,4 @@
-from fastapi import FastAPI,WebSocket
+from fastapi import FastAPI,WebSocket, BackgroundTasks
 from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -29,6 +29,19 @@ async def websocket_endpoint(websocket: WebSocket):
 		for web in websocket_list:
 			if web!=websocket:
 				await web.send_text(f"{data}")
+    
+async def background_tasks(email: str, message = ""):
+    with open("log.txt", mode="w") as email_file:
+        content = f"notification for {email}: {message}"
+        email_file.write(content)
+        
+@app.post("/send-notification/{email}", status_code=202)
+async def send_notification(email: str, background_tasks: BackgroundTasks):
+    breakpoint()
+    background_tasks.add_task(background_tasks, email, message="some notification")
+    return {"message": "Notification sent in the background"}
+
+
 
 
 
